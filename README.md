@@ -1,3 +1,5 @@
 Garanti Sanal Pos Entegrasyon (Kredi Kartı & GarantiPay)
 
-(GaraniPos sınıfı henüz tamamlanmadığı için kullanılabilir değil)
+Kredi kartı ile ödeme kullanılabilir. Ancak GarantiPay ile ödeme tamamlanmadığından kullanılabilir değil. (Yakında GarantiPay de tamamlanacaktır.)
+
+Örnek kullanım için example.php dosyasını inceleyebilirsiniz.
