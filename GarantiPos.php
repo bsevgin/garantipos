@@ -58,14 +58,15 @@ class GarantiPos
 
     //Bankadan dönen hata kodları ve mesajları
     public $mdStatuses = [
-        0 => "Doğrulama Başarısız, 3-D Secure imzası geçersiz",
-        1 => "Tam Doğrulama",
-        2 => "Kart Sahibi veya bankası sisteme kayıtlı değil",
-        3 => "Kartın bankası sisteme kayıtlı değil",
-        4 => "Doğrulama denemesi, kart sahibi sisteme daha sonra kayıt olmayı seçmiş",
+        0 => "Doğrulama başarısız, 3-D Secure imzası geçersiz",
+        1 => "Tam doğrulama",
+        2 => "Kart sahibi banka veya kart 3D-Secure üyesi değil",
+        3 => "Kartın bankası 3D-Secure üyesi değil",
+        4 => "Kart sahibi banka sisteme daha sonra kayıt olmayı seçmiş",
         5 => "Doğrulama yapılamıyor",
-        7 => "Sistem Hatası",
-        8 => "Bilinmeyen Kart No",
+        7 => "Sistem hatası",
+        8 => "Bilinmeyen kart numarası",
+        9 => "Üye işyeri 3D-Secure üyesi değil",
     ];
 
     /**
