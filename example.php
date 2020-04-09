@@ -7,64 +7,59 @@
  */
 
 session_start();
-if(!isset($_SESSION['orderNumber']) || !empty($_SESSION['orderNumber'])){
+if (!isset($_SESSION['orderNumber']) || !empty($_SESSION['orderNumber'])) {
     $_SESSION['orderNumber'] = uniqid();
 }
 
-//Sipariş ve ödeme bilgilerini buraya gireceksiniz
-$paymentType = "garantipay"; //Kredi kartı için: "creditcard", GarantiPay için: "garantipay"
-$params      = [
-    'companyName'      => "XXXXX", //Firmanızın adı
-    'orderNo'          => $_SESSION['orderNumber'], //Her sipariş için oluşturulan benzersiz sipariş numarası
-    'amount'           => "1.20", //Sipariş toplam tutarı, örnek format: 1234 TL için 1234.00 şeklinde girilmelidir
-    'installmentCount' => "", //Taksit sayısı, taksit olmayacaksa boş bırakılabilir
-    'currencyCode'     => "949", //Ödenecek tutarın döviz cinsinden kodu: TRY=949, USD=840, EUR=978, GBP=826, JPY=392
-    'customerIP'       => "127.0.0.1", //Satınalan müşterinin IP adresi
-    'customerEmail'    => "XXXXX@gmail.com", //Satınalan müşterinin e-mail adresi
-];
+// Pos tanımları, sipariş bilgileri ve ödeme bilgileri burada tanımlanıyor
+$params = array(
+    // Pos tanımları (Pos panelinde tanımlanıp buraya girilecek)
+    'mode' => "TEST", // Pos modu, test için: "TEST", production için: "PROD"
+    'merchantID' => "XXXXX", // Merchant numarası
+    'terminalID' => "XXXXX", // Terminal numarası
+    'provUserID' => "PROVAUT", // Provision kullanıcı adı
+    'provUserPassword' => "XXXXX", // Provision kullanıcı parolası
+    'garantiPayProvUserID' => "PROVOOS", // GarantiPay için provision kullanıcı adı
+    'garantiPayProvUserPassword' => "XXXXX", // GarantiPay için provision kullanıcı parolası
+    'storeKey' => "XXXXX", // 24byte hex 3D secure anahtarı
+    'successUrl' => "https://localhost/garantipos/example.php?action=success", // Başarılı ödeme sonrası dönülecek adres
+    'errorUrl' => "https://localhost/garantipos/example.php?action=error", // Hatalı ödeme sonrası dönülecek adres
+    'companyName' => "GarantiPos PHP", // Firma adı
+    'paymentType' => "creditcard", // Ödeme tipi - kredi kartı için: "creditcard", GarantiPay için: "garantipay"
 
-//Sadece kredi kartı ile ödeme yapıldığında kart bilgileri alınıyor
-if($paymentType=="creditcard"){
-    $params['cardName']         = "XXX XXX"; //(opsiyonel) Kart üzerindeki ad soyad
-    $params['cardNumber']       = "XXXXXXXXXXXXXXXX"; //Kart numarası, girilen kart numarası Garanti TEST kartıdır
-    $params['cardExpiredMonth'] = "XX"; //Kart geçerlilik tarihi ay
-    $params['cardExpiredYear']  = "XX"; //Kart geçerlilik tarihi yıl
-    $params['cardCvv']          = "XXX"; //Kartın arka yüzündeki son 3 numara(CVV kodu)
-}
+    // Müşteri tanımları
+    'orderNo' => $_SESSION['orderNumber'], // Sipariş numarası
+    'amount' => 120, // Çekilecek tutar (ondalıklı olarak değil tam sayı olarak gönderilmeli, örn. 1.20tl için 120 gönderilmeli)
+    'installmentCount' => "", // Tek çekim olacaksa boş bırakılmalıdır
+    'currencyCode' => 949, // Döviz cinsi kodu(varsayılan:949): TRY=949, USD=840, EUR=978, GBP=826, JPY=392
+    'customerIP' => $_SERVER['REMOTE_ADDR'], // Müşteri IP adresi
+    'customerEmail' => "bunyaminsevgin@gmail.com", // Müşteri e-mail adresi
+
+    // Kart bilgisi tanımları (GarantiPay ile ödemede bu alanların doldurulması zorunlu değildir)
+    'cardName' => "XXX XXX", // Kart üzerindeki ad soyad
+    'cardNumber' => "XXXXXXXXXXXXXXXX", // Kart numarası (16 haneli boşluksuz)
+    'cardExpiredMonth' => "XX", // Kart geçerlilik tarihi ay
+    'cardExpiredYear' => "XX", // Kart geçerlilik tarihi yıl (yılın son 2 hanesi)
+    'cardCvv' => "XXX", // Kartın arka yüzündeki son 3 numara(CVV kodu)
+);
 
 
-require_once("GarantiPos.php");
-$garantiPos = new GarantiPos($params);
-
-$garantiPos->debugUrlUse                = false; //true/false
-$garantiPos->mode                       = "TEST"; //Test ortamı "TEST", gerçek ortam için "PROD"
-$garantiPos->terminalMerchantID         = "XXXXX"; //Üye işyeri numarası
-$garantiPos->terminalID                 = "XXXXX"; //Terminal numarası
-$garantiPos->terminalID_                = "0".$garantiPos->terminalID; //Başına 0 eklenerek 9 digite tamamlanmalıdır
-$garantiPos->provUserID                 = "PROVAUT"; //Terminal prov kullanıcı adı
-$garantiPos->provUserPassword           = "XXXXX"; //Terminal prov kullanıcı şifresi
-$garantiPos->garantiPayProvUserID       = "PROVOOS"; //(GarantiPay kullanılmayacaksa boş bırakılabilir) GarantiPay için prov kullanıcı adı
-$garantiPos->garantiPayProvUserPassword = "XXXXX"; //(GarantiPay kullanılmayacaksa boş bırakabilir) GarantiPay için prov kullanıcı şifresi
-$garantiPos->storeKey                   = "XXXXX"; //24byte hex 3D secure anahtarı
-$garantiPos->successUrl                 = "https://127.0.0.1/garantipos/example.php?action=success"; //3D başarıyla sonuçlandığında provizyon çekmek için yönlendirilecek adres
-$garantiPos->errorUrl                   = "https://127.0.0.1/garantipos/example.php?action=error"; //3D başarısız olduğunda yönlenecek sayfa
-
+// GarantiPos sınıfı tanımlanıyor
+$garantipos = new GarantiPos();
+$garantipos->debugMode = false;
+$params['paymentType'] = isset($_POST['paymenttype']) ? $_POST['paymenttype'] : $params['paymentType'];
+$garantipos->setParams($params);
 
 $action = isset($_GET['action']) ? $_GET['action'] : false;
-if($action){
-    $garantiPos->debugMode = false;
-
-    $result = $garantiPos->callback($action, $paymentType);
-    if($result=="success"){
-        echo "başarılı ödeme";
-        unset($_SESSION['orderNumber']); //sipariş başarıyla tamamlandığı durumda session siliniyor
+if ($action) {
+    $result = $garantipos->callback($action);
+    if ($result['success'] == 'success') {
+        unset($_SESSION['orderNumber']); // Sipariş başarıyla tamamlandığı için session siliniyor
     }
-    else{
-        echo $result['message'];
-    }
-}
-else{
-    $garantiPos->debugMode = false;
 
-    $garantiPos->pay($paymentType); //bankaya yönlendirme yapılıyor
+    var_dump($result);
+} else {
+    $garantipos->debugUrlUse = false; // Parametre değerlerinin check edildiği adrese gönderilmesi
+
+    $garantipos->pay(); // 3D doğrulama için bankaya yönlendiriliyor
 }
