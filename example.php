@@ -45,6 +45,7 @@ $params = array(
 
 
 // GarantiPos sınıfı tanımlanıyor
+require_once("GarantiPos.php");
 $garantipos = new GarantiPos();
 $garantipos->debugMode = false;
 $params['paymentType'] = isset($_POST['paymenttype']) ? $_POST['paymenttype'] : $params['paymentType'];
