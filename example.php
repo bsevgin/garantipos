@@ -54,7 +54,7 @@ $garantipos->setParams($params);
 $action = isset($_GET['action']) ? $_GET['action'] : false;
 if ($action) {
     $result = $garantipos->callback($action);
-    if ($result['success'] == 'success') {
+    if ($result['status'] == 'success') {
         unset($_SESSION['orderNumber']); // Sipariş başarıyla tamamlandığı için session siliniyor
     }
 
